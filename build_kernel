@@ -16,4 +16,4 @@ cp kernel/config _tmp/$kernel/.config
 
 # Build kernel
 cd _tmp/$kernel
-make deb-pkg LOCALVERSION=-falcot KDEB_PKGVERSION=$(make kernelversion)-1
+make deb-pkg -j4 LOCALVERSION=-falcot KDEB_PKGVERSION=$(make kernelversion)-1
