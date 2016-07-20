@@ -1,0 +1,7 @@
+#!/bin/sh
+
+echo "deb http://debian.mirror.ac.za/debian jessie-backports main contrib non-free" >> /etc/apt/sources.list
+apt-get update
+
+apt-get install -t jessie-backports linux-image-amd64
+

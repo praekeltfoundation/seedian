@@ -178,7 +178,6 @@ libxml2-utils
 libxtables10
 linux-base
 linux-image-4.6.0-0.bpo.1-amd64
-linux-image-amd64
 locales
 login
 logrotate
