@@ -15,3 +15,5 @@ installed.
 Copy or symlink `/srv/fai/etc_fai` to `/etc/fai` so `fai` uses the configs from
 the repo.
 
+Create the nfsroot by running `fai-setup -v`. (See
+http://fai-project.org/fai-guide/#_create_the_nfsroot for more details.)
