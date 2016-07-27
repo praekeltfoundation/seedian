@@ -17,3 +17,9 @@ the repo.
 
 Create the nfsroot by running `fai-setup -v`. (See
 http://fai-project.org/fai-guide/#_create_the_nfsroot for more details.)
+
+
+## Credits
+
+Most of the configs in this repo started out as the FAI example configs. These
+retain their original copyrights, etc.

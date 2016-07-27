@@ -1,0 +1,12 @@
+#! /bin/bash
+
+error=0; trap 'error=$(($?>$error?$?:$error))' ERR # save maximum error code
+
+# add a seed user account
+if ! $ROOTCMD getent passwd seed ; then
+    $ROOTCMD adduser --disabled-login --gecos "initial seed user" seed
+    $ROOTCMD usermod -p "$ROOTPW" seed
+    for g in $groups; do
+        $ROOTCMD adduser seed $g
+    done
+fi

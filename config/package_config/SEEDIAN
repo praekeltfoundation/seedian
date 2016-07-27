@@ -1,0 +1,5 @@
+PACKAGES aptitude
+lsb-release
+apt-transport-https
+puppet-agent
+sudo
