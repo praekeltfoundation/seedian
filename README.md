@@ -15,8 +15,18 @@ installed.
 Copy or symlink `/srv/fai/etc_fai` to `/etc/fai` so `fai` uses the configs from
 the repo.
 
-Create the nfsroot by running `fai-setup -v`. (See
-http://fai-project.org/fai-guide/#_create_the_nfsroot for more details.)
+Create the nfsroot:
+```
+fai-setup -v
+```
+(See http://fai-project.org/fai-guide/#_create_the_nfsroot for more details.)
+
+Create the partial repo mirror to put on the ISO:
+```
+fai-mirror -v -P /srv/fai/config/files/etc/apt/preferences/SEEDIAN -c FAIBASE,DEBIAN,SEEDIAN /srv/fai/fai_mirror
+```
+
+TODO: The hackery required to make an ISO the XenServer will grudgingly accept.
 
 
 ## Credits
