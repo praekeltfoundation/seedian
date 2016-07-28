@@ -168,7 +168,7 @@ EOF
     # Put these where XenServer expects them to be.
     mkdir -p $tmp/install
     cp -p $ONFSROOT/boot/vmlinuz-$kernelversion $tmp/install/vmlinuz
-    cp -p $ONFSROOT/boot/initrd.img-$kernelversion $tmp/install/initrd.img
+    cp -p $ONFSROOT/boot/initrd.img-$kernelversion $tmp/install/initrd.gz
 
     # Put the originals back where they came from.
     mv $ONFSROOT/tmp/initrd.img* $ONFSROOT/boot
