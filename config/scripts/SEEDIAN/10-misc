@@ -10,3 +10,6 @@ if ! $ROOTCMD getent passwd seed ; then
         $ROOTCMD adduser seed $g
     done
 fi
+
+ainsl -a /etc/puppetlabs/puppet/puppet.conf "^server=${PUPPET_SERVER}$"
+ainsl -a /etc/puppetlabs/puppet/puppet.conf "^environment=${PUPPET_ENVIRONMENT:-production}$"
