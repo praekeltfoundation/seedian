@@ -7,6 +7,15 @@ This repo is a FAI config (and some related utilities) for generating Seedian
 installations.
 
 
+## Layout
+
+* `/config` - Install plan configs. This should be `/srv/fai/config/` on your
+  FAI server.
+* `/etc_fai` - FAI config. This should be symlinked to `/etc/fai` on your FAI
+  server.
+* `/bin` - Helper scripts.
+
+
 ## Usage
 
 Clone this repo to `/srv/fai` on a Debian machine with the `fai-server` package
