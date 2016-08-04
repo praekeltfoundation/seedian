@@ -2,6 +2,8 @@
 
 error=0; trap 'error=$(($?>$error?$?:$error))' ERR # save maximum error code
 
+groups="sudo"
+
 # add a seed user account
 if ! $ROOTCMD getent passwd seed ; then
     $ROOTCMD adduser --disabled-login --gecos "initial seed user" seed
