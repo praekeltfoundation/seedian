@@ -14,6 +14,9 @@ fi
 # disable os-prober because of #788062
 ainsl /etc/default/grub 'GRUB_DISABLE_OS_PROBER=true'
 
+# set boot params for DC/OS docker
+ainsl /etc/default/grub 'GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"'
+
 # skip the rest, if not an initial installation
 if [ $FAI_ACTION != "install" ]; then
     $ROOTCMD update-grub
