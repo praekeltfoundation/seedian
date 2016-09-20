@@ -14,7 +14,7 @@ if ! $ROOTCMD getent passwd seed ; then
 fi
 
 # enable NTP
-timedatectl --set-ntp true
+timedatectl set-ntp true
 
 ainsl -a /etc/puppetlabs/puppet/puppet.conf "^server=${PUPPET_SERVER}$"
 ainsl -a /etc/puppetlabs/puppet/puppet.conf "^environment=${PUPPET_ENVIRONMENT:-production}$"
