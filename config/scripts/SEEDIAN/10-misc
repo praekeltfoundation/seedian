@@ -15,8 +15,7 @@ fi
 
 # enable NTP
 # We can't just use `timedatectl set-ntp true` because dbus may not be ready.
-systemctl enable systemd-timesyncd
-systemctl start systemd-timesyncd
+$ROOTCMD systemctl enable systemd-timesyncd
 
 ainsl -a /etc/puppetlabs/puppet/puppet.conf "^server=${PUPPET_SERVER}$"
 ainsl -a /etc/puppetlabs/puppet/puppet.conf "^environment=${PUPPET_ENVIRONMENT:-production}$"
