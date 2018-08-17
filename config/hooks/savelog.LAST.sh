@@ -24,6 +24,7 @@ not found
 couldn't
 can't
 E: Sorry, broken packages
+^E: 
 operator expected
 ambiguous redirect
 No previous regular expression
@@ -51,8 +52,10 @@ ibwebadmin
 kernel-patch-badram
 kolab-webadmin
 kolabadmin
-gstreamer0.10-plugins-really-bad
+gstreamer.\+-plugins-really-bad
 liberrors.so
+liberrors-samba
+libsamba-errors
 gsambad
 libad
 libtest-nowarnings-perl
@@ -63,8 +66,7 @@ libroxen-errormessage
 liberror-perl
 libgpg-error-dev
 libgpg-error0
-^fstab.\+errors=remount
-Opts: errors=remount-ro
+Opts:.\+errors=remount
 [RT]X packets:
 WARNING: unexpected IO-APIC
 warned about = ( )
@@ -79,7 +81,7 @@ deverror.out
 (floppy), sector 0
 mount version older than kernel
 Can't locate module
-Warning only 896MB will be used.
+Warning only .\+MB will be used.
 hostname: Host name lookup failure
 I can't tell the difference.
 warning, not much extra random data, consider using the -rand option
@@ -117,6 +119,7 @@ asking for cache data failed
 However, I can not read the target:
 Warning: The partition table looks like it was made
 task_error=0
+task_local_error=0
 ^info: Trying to set
 warning: /usr/lib/X11/fonts
 can't read /etc/udev/rules.d/z25_persistent-net.rules
@@ -148,13 +151,29 @@ fail to add MMCONFIG information
 can't initialize iptables table
 can't initialize ip6tables table
 Authentication warning overridden
+41-warning.sh
+PCCT header not found
+Download is performed unsandboxed as root as file
 update-alternatives: warning: skip creation of
+loop: module verification failed: signature
+Warning: apt-key output should not be parsed
+WARNING: Failed to connect to lvmetad. Falling back to device scanning
+Warning: The home dir /var/lib/usbmux you specified
+diff: /var/lib/apparmor/profiles/.apparmor.md5sums: No such file or directory
+error reporting disabled
+Enabling Firmware First mode for corrected errors
+errors: 0
+ 0 errors
+Memory Error Correction:
+Memory Controller 0 - Channel . Error
+IIO RAS/Control Status/Global Errors
 update-rc.d: warning: start and stop actions are no longer supported"
 
 # add pattern on some conditions
 if [ -n $FAI_ALLOW_UNSIGNED ] ; then
    globalignorepatterns="$globalignorepatterns
 WARNING: untrusted versions
+WARNING: The following packages cannot be authenticated
 Ignoring these trust violations"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -176,7 +195,7 @@ if [ -s $errfile ]; then
 fi
 
 grep -i "$errorpatterns" *.log | grep -vi "$ignorepatterns" > $errfile
-if [ "$verbose" ]; then
+if [ X$verbose = X1 ]; then
     egrep -v '^software.log:' $errfile > $LOGDIR/tempfile
     mv $LOGDIR/tempfile $errfile
 fi

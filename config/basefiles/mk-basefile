@@ -2,11 +2,11 @@
 
 # mk-basefile, create basefiles for some distributions
 #
-# Thomas Lange, Uni Koeln, 2011-2015
+# Thomas Lange, Uni Koeln, 2011-2018
 # based on the Makefile implementation of Michael Goetze
 #
-# Usage example:  fai-mk-basefile -J SQUEEZE64
-# This will create a SQUEEZE64.tar.xz basefile.
+# Usage example: mk-basefile -J STRETCH64
+# This will create a STRETCH64.tar.xz basefile.
 
 # Supported distributions (each i386/amd64):
 # Debian GNU/Linux
@@ -21,19 +21,22 @@
 # Define your local mirros here
 # For the first stage, set the CentOS/SLC mirror in /etc/rinse/rinse.conf
 MIRROR_DEBIAN=http://deb.debian.org/debian/
-MIRROR_DEBIAN=http://localmirror/debian/
 MIRROR_UBUNTU=http://mirror.netcologne.de/ubuntu/
 MIRROR_CENTOS=http://mirror.netcologne.de/
-#MIRROR_CENTOS=http://localmirror
-#MIRROR_SLC=http://localmirror
 
-EXCLUDE_SQUEEZE=isc-dhcp-client,isc-dhcp-common,info,tasksel,tasksel-data
-EXCLUDE_WHEEZY=isc-dhcp-client,isc-dhcp-common,info,tasksel,tasksel-data
-EXCLUDE_JESSIE=isc-dhcp-client,isc-dhcp-common,info,tasksel,tasksel-data
+EXCLUDE_SQUEEZE=isc-dhcp-client,isc-dhcp-common,info
+EXCLUDE_WHEEZY=info
+EXCLUDE_JESSIE=info
+EXCLUDE_STRETCH=info
+EXCLUDE_BUSTER=
+EXCLUDE_SID=
+
 EXCLUDE_TRUSTY=dhcp3-client,dhcp3-common,info
-EXCLUDE_XENIAL=isc-dhcp-client,isc-dhcp-common,udhcpc,dibbler-client,dhcpcd5,info,tasksel,tasksel-data
+EXCLUDE_XENIAL=udhcpc,dibbler-client,info
+EXCLUDE_BIONIC=udhcpc,dibbler-client,info
 
-INCLUDE_DEBIAN=aptitude
+# here you can add packages, that are needed very early
+INCLUDE_DEBIAN=
 
 
 setarch() {
@@ -70,6 +73,7 @@ check() {
 
 mkpost-centos() {
 
+    # set local mirror for rinse post script
     [ -z "$MIRROR_CENTOS" ] && return
     cat <<EOM > $xtmp/post
 #! /bin/sh
@@ -83,6 +87,7 @@ EOM
 
 mkpost-slc() {
 
+    # set local mirror for rinse post script
     ver=$1
     [ -z "$MIRROR_SLC" ] && return
     cat <<EOM > $xtmp/post
@@ -99,10 +104,11 @@ EOM
 
 cleanup-deb() {
 
-    chroot $xtmp aptitude clean
-    rm -f $xtmp/etc/hostname $xtmp/etc/resolv.conf $xtmp/etc/machine-id
-    rm $xtmp/var/lib/apt/lists/*_*
-    rm -f $xtmp/etc/udev/rules.d/70-persistent-net.rules
+    chroot $xtmp apt-get clean
+    rm -f $xtmp/etc/hostname $xtmp/etc/resolv.conf \
+          $xtmp/var/lib/apt/lists/*_* $xtmp/usr/bin/qemu-*-static \
+          $xtmp/etc/udev/rules.d/70-persistent-net.rules
+    > $xtmp/etc/machine-id
 }
 
 
@@ -124,7 +130,7 @@ cleanup-rinse() {
 
 tarit() {
 
-    tar --xattrs --selinux --acl --one-file-system -C $xtmp -cf - . | $zip > $target.$ext
+    tar $attributes --one-file-system -C $xtmp -cf - . | $zip > $target.$ext
 }
 
 
@@ -158,60 +164,40 @@ slc() {
 }
 
 
-squeeze() {
+debgeneric() {
 
+    local DIST=$1
+    shift
+    local mirror=$1
+    shift
     local arch=$1
 
+    dist=${DIST%%[0-9][0-9]}
+    local exc="EXCLUDE_$dist"
+    dist=${dist,,}
+
     check
-    debootstrap --arch $arch --exclude=${EXCLUDE_SQUEEZE} squeeze $xtmp ${MIRROR_DEBIAN}
+    if [ -n "$INCLUDE_DEBIAN" ]; then
+	local inc="--include=$INCLUDE_DEBIAN"
+    fi
+
+    if [ -n "$arch" ]; then
+	qemu-debootstrap --arch $arch --exclude=${!exc} $inc $dist $xtmp $mirror
+	target="${target}_${arch^^}"
+    else
+	if [[ $DIST =~ 64 ]]; then
+            arch=amd64
+	else
+            arch=i386
+	fi
+	debootstrap --arch $arch --exclude=${!exc} $inc $dist $xtmp $mirror
+    fi
     cleanup-deb
     tarit
 }
 
-wheezy() {
+prtdists() {
 
-    local arch=$1
-
-    check
-    debootstrap --arch $arch --exclude=${EXCLUDE_WHEEZY} wheezy $xtmp ${MIRROR_DEBIAN}
-    cleanup-deb
-    tarit
-}
-
-jessie() {
-
-    local arch=$1
-
-    check
-    debootstrap --arch $arch --exclude=${EXCLUDE_JESSIE} --include=${INCLUDE_DEBIAN} jessie $xtmp ${MIRROR_DEBIAN}
-    cleanup-deb
-    tarit
-}
-
-trusty() {
-
-    local arch=$1
-
-    check
-    debootstrap --arch $arch --exclude=${EXCLUDE_TRUSTY} --include=${INCLUDE_DEBIAN} trusty $xtmp ${MIRROR_UBUNTU}
-    cleanup-deb
-    tarit
-}
-
-xenial() {
-
-    local arch=$1
-
-    check
-    debootstrap --arch $arch --exclude=${EXCLUDE_XENIAL} --include=${INCLUDE_DEBIAN} xenial $xtmp ${MIRROR_UBUNTU}
-    cleanup-deb
-    tarit
-}
-
-
-unknown() {
-
-    echo "Unknown distribution. Aborting."
     echo "Available:
 
     CENTOS5_32   CENTOS5_64
@@ -222,37 +208,73 @@ unknown() {
                  SLC7_64
     TRUSTY32     TRUSTY64
     XENIAL32     XENIAL64
+                 BIONIC64
     SQUEEZE32    SQUEEZE64
     WHEEZY32     WHEEZY64
     JESSIE32     JESSIE64
+    STRETCH32    STRETCH64
+    BUSTER32     BUSTER64
+    SID32        SID64
 "
-    exit 99
 }
 
+usage() {
+
+    cat <<EOF
+mk-basefile, create minimal base files for a Linux distritubtion
+
+   Copyright (C) 2011-2018 by Thomas Lange
+
+Usage: mk-basefile [OPTION] ... DISTRIBUTION
+
+   -s                   Show list of supported linux distributions
+   -f ARCH              Build for foreign architecture ARCH.
+   -d DIR               Use DIR for creating the temporary subtree structure.
+   -z                   Use gzip for compressing the tar file.
+   -J                   Use xz for compressing the tar file.
+   -k                   Keep the temporary subtree structure, do not remove it.
+   -h                   Print help.
+
+ Usage example: mk-basefile -J STRETCH64
+ This will create a STRETCH64.tar.xz basefile.
+
+EOF
+    exit 0
+}
 
 # main routine
 
 ext=tar
 zip=cat
-tmpdir=/var/tmp
+attributes=
+cleanup=1
+attributes="--xattrs --selinux --acls"
 
-while getopts zJd: opt ; do
+while getopts ashzJd:kf: opt ; do
     case "$opt" in
-        d) tmpdir=$OPTARG ;;
+        a) echo "$0: Warning. -a is ignored, because xtattrs, acls and selinux are always added." ;;
+        d) export TMPDIR=$OPTARG ;;
+        f) export ARCH=$OPTARG ;;
         z) zip="gzip -9"; ext=tar.gz ;;
         J) zip="xz -8" ext=tar.xz ;;
+        k) cleanup=0 ;;
+        h) usage ;;
+        s) prtdists ; exit 0;;
+        ?) exit 3 ;; # error in option parsing
     esac
 done
 shift $(($OPTIND - 1))
 
-xtmp=$(mktemp -d $tmpdir/basefiles.XXXXXXXX)
+xtmp=$(mktemp --tmpdir -d basefiles.XXXXXXXX)
 if [ $? -eq 1 ]; then
     echo "mktemp failed. Aborting."
     exit 2
 fi
+chmod 755 $xtmp
 
 target=$1 # also the name of the output file
 
+[ -z "$target" ] && usage
 case "$target" in
     CENTOS5_32) centos i386 5 ;;
     CENTOS5_64) centos amd64 5 ;;
@@ -265,18 +287,16 @@ case "$target" in
     SLC6_32) slc i386 6 ;;
     SLC6_64) slc amd64 6 ;;
     SLC7_64) slc amd64 7 ;;
-    TRUSTY32) trusty i386 ;;
-    TRUSTY64) trusty amd64 ;;
-    XENIAL32) xenial i386 ;;
-    XENIAL64) xenial amd64 ;;
-    SQUEEZE32) squeeze i386 ;;
-    SQUEEZE64) squeeze amd64 ;;
-    WHEEZY32) wheezy i386 ;;
-    WHEEZY64) wheezy amd64 ;;
-    JESSIE32) jessie i386 ;;
-    JESSIE64) jessie amd64 ;;
-    *) unknown ;;
+    TRUSTY*|XENIAL*|BIONIC*)
+        debgeneric $target $MIRROR_UBUNTU ;;
+    SQUEEZE*|WHEEZY*|JESSIE*|STRETCH*|BUSTER*|SID*)
+        debgeneric $target $MIRROR_DEBIAN $ARCH;;
+    *) echo "Unknown distribution. Aborting."
+       prtdists
+       exit 99 ;;
 esac
 
 # cleanup
-rm -rf $xtmp
+if [ $cleanup -eq 1 ]; then
+   rm -rf $xtmp
+fi

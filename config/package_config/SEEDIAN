@@ -1,7 +1,6 @@
-PACKAGES aptitude
+PACKAGES install-norec
 dbus
 lsb-release
-apt-transport-https
 ca-certificates
 puppet-agent
 sudo
