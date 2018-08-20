@@ -4,3 +4,5 @@ lsb-release
 ca-certificates
 puppet-agent
 sudo
+# This is needed by our custom 'routes' puppet fact.
+net-tools
