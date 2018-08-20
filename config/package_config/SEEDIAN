@@ -6,3 +6,5 @@ puppet-agent
 sudo
 # This is needed by our custom 'routes' puppet fact.
 net-tools
+# This is needed by the puppet apt module for key management.
+dirmngr
