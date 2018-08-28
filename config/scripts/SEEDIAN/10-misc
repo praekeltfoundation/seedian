@@ -27,3 +27,6 @@ $ROOTCMD systemctl enable systemd-timesyncd
 
 ainsl -a /etc/puppetlabs/puppet/puppet.conf "^server=${PUPPET_SERVER}$"
 ainsl -a /etc/puppetlabs/puppet/puppet.conf "^environment=${PUPPET_ENVIRONMENT:-production}$"
+
+# Remove the tmpfs /tmp entry if there is one.
+sed -i '/^tmpfs[ \t]\+ \/tmp[ \t]\+/d' $target/etc/fstab
